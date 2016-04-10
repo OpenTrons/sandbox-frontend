@@ -1,6 +1,8 @@
 FROM vimagick/alpine-arm:3.3
 #COPY qemu-arm-static /usr/bin/qemu-arm-static
 
+ENV APP_HOME /home/sandbox-frontend
+
 RUN apk update && \
     apk add \
     ca-certificates \
@@ -25,6 +27,8 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 RUN rm -rf /var/cache/apk/*
+
+ADD . $APP_HOME
 
 #ENTRYPOINT ["tar", "-cvz", "/usr/lib/python3.5/site-packages/", "/home/sandbox-frontend"]
 ENTRYPOINT ["python3", "/home/sandbox-frontend/app.py"]
