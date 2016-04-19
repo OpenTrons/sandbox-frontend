@@ -5,8 +5,8 @@
 <div class="deck">
     <aside class="step-list">
         <ul id="step-group">
-            <li><a href="#welcome/upload">Support</a></li>
-            <li><a href="#file/finfo">Upload Protocol Wizard</a></li>
+            <li><a href="#">Support</a></li>
+            <li><a href="#">Upload Protocol Wizard</a></li>
             <li><a href="#">Calibrate Container Wizard</a></li>
             <li><a href="#">Echo steps from Michelle</a></li>
         </ul>
@@ -16,9 +16,9 @@
         <div id="TaskPane">
             Loading...
         </div>
-        <script id="welcomeTask-template" type="text/x-handlebars-template">
+        <script id="uploadTask-template" type="text/x-handlebars-template">
             <div class="steps">
-                <div class="step step-upload">
+                <div class="step step-choose">
                     <div class="task">
                         <h2>Welcome to the OT-One Calibration Interface</h2>
                         <p>
@@ -59,7 +59,7 @@
                         <h2>Use Previously Saved Positions?</h2>
                         <p>Some containers have saved positions, please select any previously calibrated positions you would like to retain.
                         </p>
-                        <table>
+                        <table class="labware">
                             <tbody>
                                 <tr>
                                     <th class="delete"></th>
@@ -69,22 +69,21 @@
                                     <th>Z:</th>
                                     <th>Slot</th>
                                 </tr>
-
                                 {{#each data.prevlabware}}
                                 <tr>
                                     <td class="delete">
                                         <input type="checkbox" name="container" id={{@index}}/>
-                                        <label>reuse</label></td>
-                                        <td>{{this.name}}</td>
-                                        <td>{{this.x}}</td>
-                                        <td>{{this.y}}</td>
-                                        <td>{{this.z}}</td>
-                                        <td> </td>
+                                        <label>reuse</label>
+                                    </td>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.x}}</td>
+                                    <td>{{this.y}}</td>
+                                    <td>{{this.z}}</td>
+                                    <td> </td>
                                 </tr>
                                 {{/each}}
                             </tbody>
                         </table>
-
                         <button class="btn continue" onclick="savePrev();">Save and Continue</button>
                         <ul class="subnav">
                             <li><a href="#welcome/upload" class="btn"><i class="fa fa-chevron-left fa-2x"></i>Prev</a></li>
@@ -97,43 +96,34 @@
                         <p>Error tips and links here?</p>
                     </div>
                 </div>
-
-
                 <div class="step step-compare">
                     <div class="task">
-                    
                         <h2>Positions Saved</h2>
                         <p>The following container positions have been applied to your current protocol. You may test or overwrite them at any time.</p>
                         {{#if data.savedlabware}}
-                        <table>
+                        <table class="labware">
                             <tbody>
                                 <tr>
-               
                                     <th>Container</th>
                                     <th>X:</th>
                                     <th>Y:</th>
                                     <th>Z:</th>
                                     <th>Slot</th>
                                 </tr>
-                                 
                                 {{#each data.savedlabware}}
                                 <tr>
-                                    
-                                       
-                                        <td>{{this.name}}</td>
-                                        <td>{{this.x}}</td>
-                                        <td>{{this.y}}</td>
-                                        <td>{{this.z}}</td>
-                                        <td></td>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.x}}</td>
+                                    <td>{{this.y}}</td>
+                                    <td>{{this.z}}</td>
+                                    <td></td>
                                 </tr>
                                 {{/each}}
-
                             </tbody>
                         </table>
                         {{/if}}
                         <br>
-                        <button class="btn" onclick="">Continue</button>
-
+                        <a role="button" class="btn" onclick="" href="#calibrate/jog">Continue</a>
                         <ul class="subnav">
                             <li><a href="#container/existing" class="btn"><i class="fa fa-chevron-left fa-2x"></i>Prev</a></li>
                             <li></li>
@@ -154,7 +144,6 @@
                     <p>The first position you save should be your tip rack. Select that position then jog your robot so that the pipette is hovering directly over the A1 tip of the rack that it will use for the run.</p>
                     <p>When you think the pipette is well positioned directly above the tip, flip to the "Pipette" section of the interface, select the correct pipette, and hit "pick up tip." The machine will go up and down three times in an attempt to pick up the tip.</p>
                     <p>NOTE: the distance the machine moves down the Z axis to pick up the tip is defined in the "tip plunge" field in the Pipette definition in the Head section of the JSON OT protocol document.</p>
-                    (labware: {{labware}}; step: {{step}})
                     <!-- Next Step generate links based on incoming data -->
                     <ul class="subnav">
                         <li><a class="btn"><i class="fa fa-info-circle fa-lg"></i> Tips</a></li>
@@ -164,56 +153,58 @@
                 </div>
                 <div class="step step-jog">
                     <div class="jog">
-                        <h4>Jog X,Y,Z</h4>
-                        <table cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td></td>
-                                <td><a href="#" class="btn" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{X:10});"><i class="fa fa-arrow-up fa-lg"></i></a></td>
-                                <td></td>
-                                <td class="spacer"></td>
-                                <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-up fa-lg"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td class="pull-right"> <a href="#"><i class="fa fa-arrow-left fa-lg "></i></a></td>
-                                <td>&nbsp;</td>
-                                <td class="pull-left"><a href="#" class="btn "><i class="fa fa-arrow-right fa-lg"></i></a></td>
-                                <td class="spacer"></td>
-                                <td>&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td><a href="#"><i class="fa fa-arrow-down fa-lg"></i></a></td>
-                                <td>&nbsp;</td>
-                                <td class="spacer"></td>
-                                <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-down fa-lg"></i></a></td>
-                            </tr>
-                        </table>
-                        <h4>Select Increment [mm]</h4>
-                        <div class="btn-group">
-                            <a href="#" class="btn btn-inc">100</a>
-                            <a href="#" class="btn btn-inc">50</a>
-                            <a href="#" class="btn btn-inc">10</a>
-                            <a href="#" class="btn btn-inc">1.0</a>
-                            <a href="#" class="btn btn-inc">0.5</a>
-                            <a href="#" class="btn btn-inc">0.1</a>
+                        <div class="task">
+                            <h4>Jog X,Y,Z</h4>
+                            <table cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td></td>
+                                    <td><a href="#" class="btn" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{X:10});"><i class="fa fa-arrow-up fa-lg"></i></a></td>
+                                    <td></td>
+                                    <td class="spacer"></td>
+                                    <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-up fa-lg"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td class="pull-right"> <a href="#" class="btn"><i class="fa fa-arrow-left fa-lg "></i></a></td>
+                                    <td>&nbsp;</td>
+                                    <td class="pull-left"><a href="#" class="btn"><i class="fa fa-arrow-right fa-lg"></i></a></td>
+                                    <td class="spacer"></td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><a href="#" class="btn"><i class="fa fa-arrow-down fa-lg"></i></a></td>
+                                    <td>&nbsp;</td>
+                                    <td class="spacer"></td>
+                                    <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-down fa-lg"></i></a></td>
+                                </tr>
+                            </table>
+                            <h4>Select Increment [mm]</h4>
+                            <div class="btn-group">
+                                <a href="#" class="btn btn-inc">100</a>
+                                <a href="#" class="btn btn-inc">50</a>
+                                <a href="#" class="btn btn-inc">10</a>
+                                <a href="#" class="btn btn-inc">1.0</a>
+                                <a href="#" class="btn btn-inc">0.5</a>
+                                <a href="#" class="btn btn-inc">0.1</a>
+                            </div>
+                            <div class="btn-group">
+                                <a href="#" class="btn btn-inc">Slot Width</a>
+                                <a href="#" class="btn btn-inc">Slot Height</a>
+                            </div>
                         </div>
-                        <div class="btn-group">
-                            <a href="#" class="btn btn-inc">Slot Width</a>
-                            <a href="#" class="btn btn-inc">Slot Height</a>
+                        <!-- Link to Info/Jog/Test based on current data -->
+                        <ul class="subnav">
+                            <li><a class="btn"><i class="fa fa-info-circle fa-lg"></i> Tips</a></li>
+                            <li><a class="btn"><i class="fa fa-arrows fa-lg"></i> Jog</a></li>
+                            <li><a class="btn"><i class="fa fa-refresh fa-lg"></i> Test</a></li>
+                        </ul>
+                    </div>
+                    <div class="info">
+                        <div class="jog-info">
+                            <h4>Current Container Name</h4>
+                            <p>X:0 Y:0 Z:0</p>
                         </div>
                     </div>
-                    <div class="jog">
-                    </div>
-                    <div class="jog-info">
-                        <h4>Current Container Name</h4>
-                        <p>X:0 Y:0 Z:0</p>
-                    </div>
-                    <!-- Link to Info/Jog/Test based on current data -->
-                    <ul class="subnav">
-                        <li><a class="btn"><i class="fa fa-info-circle fa-lg"></i> Tips</a></li>
-                        <li><a class="btn"><i class="fa fa-arrows fa-lg"></i> Jog</a></li>
-                        <li><a class="btn"><i class="fa fa-refresh fa-lg"></i> Test</a></li>
-                    </ul>
                 </div>
                 <div class="step step-done">
                     This is another step, cool.
@@ -285,17 +276,77 @@
                 y: 0,
                 z: 0
             }],
-            savedlabware:[]
+            savedlabware: []
         };
 
-        var task = new TaskController().setTask('welcome', {
-            step: 'upload',
-            data: fakedata
+        var stepData = [{
+            taskType: "upload",
+            step: "choose",
+            required: true,
+            data: {
+                prevFiles: ["elisa.json", "master-mix.json", "fusx.json"],
+                currentFile: ""
+            }
+
+        }, {
+            taskType: "container",
+            step: "existing",
+            required: false,
+            data: {
+                prevlabware: [{
+                    name: "p200-rack",
+                    x: 23,
+                    y: 10,
+                    z: 65
+                }, {
+                    name: "trough",
+                    x: 25,
+                    y: 34,
+                    z: 67
+                }, {
+                    name: "standard",
+                    x: 27,
+                    y: 40,
+                    z: 85
+                }, {
+                    name: "trash",
+                    x: 23,
+                    y: 50,
+                    z: 90
+                }, {
+                    name: "source-1",
+                    x: 22,
+                    y: 45,
+                    z: 100
+                }, {
+                    name: "output-1",
+                    x: 34,
+                    y: 34,
+                    z: 88
+                }]
+            }
+        }, {
+            taskType: "container",
+            step: "compare",
+            required: false,
+            data: {
+                savedlabware: []
+            }
+        },
+        {
+            taskType:"cali"
+        }
+        ;
+
+        var si = 0; 
+
+        var task = new TaskController().setTask(stepData[0].taskType, {
+            step: stepData[0].step,
+            data: stepData[0].data
         });
+        task.setStep(stepData[0].step);
+        var currentStep = stepData[0].step;
 
-        task.setStep('upload');
-
-        var currentStep = 'upload';
 
         function locationHashChanged() {
             var url = location.hash;
@@ -308,7 +359,7 @@
 
                 task.setTask(t, {
                     step: s,
-                    data: fakedata
+                    data: data
                 });
                 task.setStep(s);
                 currentStep = s;
@@ -324,29 +375,36 @@
 
         }, false);
 
-        function savePrev(){
+        function savePrev() {
             var lw = document.querySelectorAll('input[name=container]');
             for (var i = 0; i < lw.length; i++) {
-                if (lw[i].checked){
-                    fakedata.savedlabware.push(fakedata.prevlabware[i]);
+                if (lw[i].checked) {
+                    stepData[2].data.savedlabware.push(stepData[1].data.prevlabware[i]);
                 }
             }
-            window.location.hash = "container/compare"
+            nextStep(2);
+        }
+
+        function nextStep(index) {
+            task.setTask(stepData[index].taskType, {
+                step: stepData[index].step,
+                data: stepData[index].data
+            });
+            task.setStep(stepData[index].step);
+            currentStep = stepData[index].step;
+            checkStep();
         }
 
         function checkStep() {
             console.log(currentStep);
             switch (currentStep) {
-                case 'upload':
+                case 'choose':
                     document.getElementById("files").onchange = function() {
 
                         var path = this.value.replace("C:\\fakepath\\", "");
                         document.getElementById("uploadFile").value = path;
-                        task.setTask("container", {
-                            step: "existing",
-                            data: fakedata
-                        });
-                        task.setStep("existing");
+                        si++;
+                        nextStep(si);
                     };
                     break;
 
@@ -358,13 +416,13 @@
                             var row = e.target.parentNode.parentNode;
                             if (e.target.checked) {
                                 row.classList.add('saved');
-                           }else{
+                            } else {
                                 row.classList.remove('saved');
-                           }
+                            }
                         });
                     }
                 case 'compare':
-                        //will add in when we have compare funcitonality                    
+                    console.log(stepData[stepIndex])                   
                     break;
 
                 default:

@@ -276,25 +276,4 @@ a.btn-tab:hover {
   border-radius: 0 14px 14px 0;
 }
 
-/*********************
-Upload Button
-********************/
-/* line 137, ../../sass/main.scss */
-.fileUpload {
-  position: relative;
-  overflow: hidden;
-  margin: 10px;
-}
 
-/* line 142, ../../sass/main.scss */
-.fileUpload input.upload {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-  cursor: pointer;
-  opacity: 0;
-  filter: alpha(opacity=0);
-}

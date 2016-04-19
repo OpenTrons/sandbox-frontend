@@ -19,6 +19,10 @@ def sandbox():
 def data():
 	return render_template("data.html")
 
+@app.route("/wizard")
+def wizard():
+	return render_template("wizard.html")
+
 
 @app.errorhandler(404)
 def page_not_found(error):

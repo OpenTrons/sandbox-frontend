@@ -1,0 +1,401 @@
+{% extends "/layout.html" %} {% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/walkthrough.css') }}"> {% endblock %} {% block body %}
+<style type="text/css">
+</style>
+<div class="deck">
+    <aside class="step-list">
+        <ul id="step-group">
+            <li><a href="#">Support</a></li>
+            <li><a href="#">Upload Protocol Wizard</a></li>
+            <li><a href="#">Calibrate Container Wizard</a></li>
+            <li><a href="#">Echo steps from Michelle</a></li>
+        </ul>
+    </aside>
+    {% raw %}
+    <div id="wizard">
+        <div id="TaskPane">
+            Loading...
+        </div>
+        <!-- Protocol Selection -->
+        <script id="select_protocolTask-template" type="text/x-handlebars-template">
+            <div class="steps">
+                <!-- Select a Protocol File -->
+                <div class="step step-choose">
+                    <div class="task">
+                        <h2>Welcome to the OT-One Calibration Wizard</h2>
+                        <p>OpenTrons jobs are described in JSON files that the robot reads as instruction set. You download these files from Mix.Bio. You can choose a pre-made JSON document from the Protocol Database that is ready to run, or customize your own in the Protocol Editor. {{#if data.previous_runs}}
+                            <h3>Choose a Previously Run Protocol</h3>
+                            <table class="labware">
+                                <tr>
+                                    <th> </th>
+                                    <th>Filename</th>
+                                    <th>Run Count</th>
+                                    <th>Last Run</th>
+                                    <th>Description</th>
+                                </tr>
+                                {{#each data.previous_runs}}
+                                <tr>
+                                    <td class="col1">
+                                        <input type="radio" name="protocol" id={{@index}}/>
+                                    </td>
+                                    <td>{{this.file_name}}</td>
+                                    <td>{{this.run_count}}</td>
+                                    <td>{{this.last_run}}</td>
+                                    <td>{{this.description}}</td>
+                                </tr>
+                                {{/each}}
+                            </table>
+                            {{/if}}
+                            <h3>Or upload a new file</h3>
+                            <input id="uploadFile" placeholder="Choose a File" disabled="disabled" />
+                            <br>
+                            <div class="fileUpload btn" id="upLoad" style="display:inline-block;">
+                                <span>Upload</span>
+                                <input type="file" name="file" id="files" class="upload" />
+                            </div>
+                            <ul class="subnav">
+                                <li></li>
+                                <li></li>
+                                <li><a href="#" data-direction="next" class="btn"> Next <i class="fa fa-chevron-right fa-2x"></i></a></li>
+                            </ul>
+                    </div>
+                    <div class="info">
+                        <h2>Tip:</h2>
+                        <p>Error tips and links here?</p>
+                    </div>
+                </div>
+                <!-- Test Saved Positions -->
+                <div class="step step-test_existing">
+                    <div class="task">
+                        <h2>Use Previously Saved Positions?</h2>
+                        <p>Some containers have saved positions, please select any previously calibrated positions you would like to retain.
+                        </p>
+                        <table class="labware">
+                            <tbody>
+                                <tr>
+                                    <th>Test</th>
+                                    <th>Save</th>
+                                    <th>Container</th>
+                                    <th>X:</th>
+                                    <th>Y:</th>
+                                    <th>Z:</th>
+                                    <th>Slot</th>
+                                </tr>
+                                {{#each data.labware}}
+                                <tr>
+                                    <td class="col1">
+                                        <a href="#"><i class="fa fa-play-circle-o fa-lg"></i></a></td>
+                                    <td class="col1">
+                                        <input type="checkbox" name="container" id={{@index}}/>
+                                    </td>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.x}}</td>
+                                    <td>{{this.y}}</td>
+                                    <td>{{this.z}}</td>
+                                    <td> </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        <a href="#" class="btn continue" onclick="saveExisting();">Save and Continue</a>
+                        <ul class="subnav">
+                            <li>
+                                <a href="#" data-direction="prev" class="btn"> <i class="fa fa-chevron-left fa-2x"></i>Prev</a>
+                            </li>
+                            <li></li>
+                            <li><a href="#" data-direction="next" class="btn"> Next <i class="fa fa-chevron-right fa-2x"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="info">
+                        <h2>Tip:</h2>
+                        <p>Error tips and links here?</p>
+                    </div>
+                </div>
+                <!-- Saved Positions Confirm -->
+                <div class="step step-review_existing">
+                    <div class="task">
+                        <h2>Positions Saved</h2>
+                        <table class="labware">
+                            <tbody>
+                                <tr>
+                                    <th>Container</th>
+                                    <th>X:</th>
+                                    <th>Y:</th>
+                                    <th>Z:</th>
+                                    <th>Slot</th>
+                                </tr>
+                                {{#each data.labware}}
+                                <tr>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.x}}</td>
+                                    <td>{{this.y}}</td>
+                                    <td>{{this.z}}</td>
+                                    <td> </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        <ul class="subnav">
+                            <li>
+                                <a href="#" data-direction="prev" class="btn"> <i class="fa fa-chevron-left fa-2x"></i>Prev</a>
+                            </li>
+                            <li></li>
+                            <li><a href="#" data-direction="next" class="btn"> Next <i class="fa fa-chevron-right fa-2x"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="info">
+                        <h2>Tip:</h2>
+                        <p>Error tips and links here?</p>
+                    </div>
+                </div>
+        </script>
+        <!-- Calibration -->
+        <script id="calibrateTask-template" type="text/x-handlebars-template">
+            <div class="steps">
+                <!-- Select a Protocol File -->
+                <div class="step step-jog">
+                    <div class="task">
+                        <h2>Calibrate {{data.pipette}} to {{data.user_container_name}}</h2>
+                        <div class="jog">
+                        
+
+                        <h3 class="coords">X:0 Y:0 Z:0</h3>
+                        <h4>Jog X,Y,Z:</h4>
+                            
+                            <table cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td></td>
+                                    <td><a href="#" class="btn" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{X:10});"><i class="fa fa-arrow-up fa-lg"></i></a></td>
+                                    <td></td>
+                                    <td class="spacer"></td>
+                                    <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-up fa-lg"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td class="pull-right"> <a href="#" class="btn"><i class="fa fa-arrow-left fa-lg "></i></a></td>
+                                    <td>&nbsp;</td>
+                                    <td class="pull-left"><a href="#" class="btn"><i class="fa fa-arrow-right fa-lg"></i></a></td>
+                                    <td class="spacer"></td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><a href="#" class="btn"><i class="fa fa-arrow-down fa-lg"></i></a></td>
+                                    <td>&nbsp;</td>
+                                    <td class="spacer"></td>
+                                    <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-down fa-lg"></i></a></td>
+                                </tr>
+                            </table>
+                            <h4>Select Increment [mm]:</h4>
+                            <div class="btn-group">
+                                <a href="#" class="btn btn-inc">100</a>
+                                <a href="#" class="btn btn-inc">50</a>
+                                <a href="#" class="btn btn-inc">10</a>
+                                <a href="#" class="btn btn-inc">1.0</a>
+                                <a href="#" class="btn btn-inc">0.5</a>
+                                <a href="#" class="btn btn-inc">0.1</a>
+                            </div>
+                            <div class="btn-group">
+                                <a href="#" class="btn btn-inc">Slot Width</a>
+                                <a href="#" class="btn btn-inc">Slot Height</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info">
+                <h2>Well A1:</h2>
+                <img src="../static/img/{{data.container_name}}.jpg"/></div>
+            </div>
+            </div>
+        </script>
+        {% endraw %}
+        <script>
+        var labware = [{
+            name: "p200-rack",
+            x: 23,
+            y: 10,
+            z: 65
+        }, {
+            name: "trough",
+            x: 25,
+            y: 34,
+            z: 67
+        }, {
+            name: "standard",
+            x: 27,
+            y: 40,
+            z: 85
+        }, {
+            name: "trash",
+            x: 23,
+            y: 50,
+            z: 90
+        }, {
+            name: "source-1",
+            x: 22,
+            y: 45,
+            z: 100
+        }, {
+            name: "output-1",
+            x: 34,
+            y: 34,
+            z: 88
+        }]
+        tasks = [
+
+            {
+                task_title: "Select Your Protocol",
+                task_type: "select_protocol",
+                steps: [{
+                    id: 'uniquekey1',
+                    step: 'choose',
+                    data: {
+                        selected_file: 'elisa.json', // DEFAULT
+                        previous_runs: [{
+                            id: 'foo1',
+                            file_name: 'elisa.json',
+                            description: "FOO",
+                            last_run: 'timestamp',
+                            run_count: 34,
+                            required: false,
+                            completed: false
+                        }, {
+                            id: 'foo2',
+                            file_name: 'talon.json',
+                            description: "BAR",
+                            last_run: 'timestamp',
+                            run_count: 234,
+                            required: false,
+                            completed: false
+                        }]
+                    }
+                }, {
+                    id: 'uniquekey2',
+                    step: 'test_existing',
+                    data: {
+                        labware: labware
+                    }
+                }, {
+                    id: 'uniquekey3',
+                    step: 'review_existing',
+                    data: {
+                        labware: labware
+                    }
+                }]
+            },
+
+            {
+                task_title: "Calibrate All The Things",
+                task_type: "calibrate",
+                steps: [{
+                    id: 'uniquekey4',
+                    step: 'jog',
+                    data: {
+                        required: false,
+                        completed: false,
+                        user_container_name: 'Reagents',
+                        container_name: 'microplate.96.deepwell',
+                        pipette: "p10-L",
+                        deck_position: 'A1',
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    }
+                }, {
+                    id: 'uniquekey5',
+                    step: 'jog',
+                    data: {
+                        required: false,
+                        completed: false,
+                        container_name: 'trash',
+                        deck_position: 'B2',
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    }
+                }]
+            }
+
+        ];
+
+
+
+        cs = 0;
+        ct = 0;
+
+        task = new TaskController().setTask(tasks[0].task_type, {
+            step: tasks[0].steps[0].step,
+            data: tasks[0].steps[0].data
+        });
+        task.setStep(tasks[0].steps[0].step);
+
+        function updateTask(tindex, sindex) {
+            task.setTask(tasks[tindex].task_type, {
+                step: tasks[tindex].steps[sindex].step,
+                data: tasks[tindex].steps[sindex].data
+            });
+            task.setStep(tasks[tindex].steps[sindex].step);
+        }
+
+        function nextStep() {
+            console.log(tasks[ct].steps.length);
+            if (cs < tasks[ct].steps.length - 1) {
+                console.log("next step");
+                cs++;
+
+                updateTask(ct, cs);
+
+            } else {
+                console.log("next task");
+                ct++;
+                cs = 0;
+
+                updateTask(ct, cs);
+            }
+        }
+
+        function prevStep() {
+            if (cs >= 0) {
+                console.log("prev step");
+                cs--;
+                updateTask(ct, cs);
+            } else {
+                console.log("prev task");
+                ct--;
+                cs = tasks[ct].steps.length - 1;
+                updateTask(ct, cs);
+            }
+        }
+
+        function saveExisting() {
+            var elw = document.querySelectorAll('input[name=container]');
+            for (var i = 0; i < elw.length; i++) {
+                if (!elw[i].checked) {
+                    delete labware[i]
+                }
+            }
+            nextStep();
+        }
+
+        //input events
+        window.addEventListener('change', function(e) {
+            if (e.target.name == "protocol" || e.target.name == "container") {
+                console.log(e.target.parentNode.parentNode);
+                var row = e.target.parentNode.parentNode;
+                row.classList.toggle('saved');
+            }
+        });
+        //click events
+        window.addEventListener('click', function(e) {
+            if (e.target.hasAttribute("data-direction")) {
+                if (e.target.dataset.direction == "next") {
+                    nextStep();
+                } else {
+                    prevStep();
+                }
+            }
+
+        });
+        </script>
+    </div>
+</div>
+{% endblock %} {% block scripts %} {% endblock %}
