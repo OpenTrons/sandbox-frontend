@@ -84,7 +84,10 @@
                                 {{#each data.labware}}
                                 <tr>
                                     <td class="col1">
-                                        <a href="#"><i class="fa fa-play-circle-o fa-lg"></i></a></td>
+<!---------------------------- 
+Move Bot Based on Data X and Y 
+-->
+                                        <a href="#"><i data-x="{{this.x}}" data-y="{{this.y}}"class="fa fa-play-circle-o fa-lg"></i></a></td>
                                     <td class="col1">
                                         <input type="checkbox" name="container" id={{@index}}/>
                                     </td>
@@ -157,11 +160,8 @@
                     <div class="task">
                         <h2>Calibrate {{data.pipette}} to {{data.user_container_name}}</h2>
                         <div class="jog">
-                        
-
-                        <h3 class="coords">X:0 Y:0 Z:0</h3>
-                        <h4>Jog X,Y,Z:</h4>
-                            
+                            <h3 class="coords">X:0 Y:0 Z:0</h3>
+                            <h4>Jog X,Y,Z:</h4>
                             <table cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td></td>
@@ -171,9 +171,9 @@
                                     <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-up fa-lg"></i></a></td>
                                 </tr>
                                 <tr>
-                                    <td class="pull-right"> <a href="#" class="btn"><i class="fa fa-arrow-left fa-lg "></i></a></td>
+                                    <td class="pull-right"> <a href="#" class="btn" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{Y:-10});"><i class="fa fa-arrow-left fa-lg "></i></a></td>
                                     <td>&nbsp;</td>
-                                    <td class="pull-left"><a href="#" class="btn"><i class="fa fa-arrow-right fa-lg"></i></a></td>
+                                    <td class="pull-left"><a href="#" class="btn" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{Y:10});"><i class="fa fa-arrow-right fa-lg"></i></a></td>
                                     <td class="spacer"></td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -182,7 +182,7 @@
                                     <td><a href="#" class="btn"><i class="fa fa-arrow-down fa-lg"></i></a></td>
                                     <td>&nbsp;</td>
                                     <td class="spacer"></td>
-                                    <td><a href="#" class="btn btn-z"><i class="fa fa-arrow-down fa-lg"></i></a></td>
+                                    <td><a href="#" class="btn btn-z" onclick="sendMessage('com.opentrons.driver',driver_id,'command','smoothie','move_to',{X:-10});"><i class="fa fa-arrow-down fa-lg"></i></a></td>
                                 </tr>
                             </table>
                             <h4>Select Increment [mm]:</h4>
@@ -202,8 +202,8 @@
                     </div>
                 </div>
                 <div class="info">
-                <h2>Well A1:</h2>
-                <img src="../static/img/{{data.container_name}}.jpg"/></div>
+                    <h2>Well A1:</h2>
+                    <img src="../static/img/{{data.container_name}}.jpg" /></div>
             </div>
             </div>
         </script>
@@ -392,6 +392,15 @@
                 } else {
                     prevStep();
                 }
+            }
+            /******************************
+            Move Bot Based on Data X and Y
+            ******************************/
+            if(e.target.hasAttribute("data-x")){
+                var x = e.target.dataset.x;
+                var y = e.target.dataset.y;
+                console.log(x + ', '+y);
+               sendMessage('com.opentrons.driver', driver_id, 'id','command','smoothie','move_to',{X:x,Y:y});
             }
 
         });
