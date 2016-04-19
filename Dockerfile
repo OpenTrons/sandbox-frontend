@@ -1,30 +1,34 @@
-FROM ubuntu:15.04
-MAINTAINER OpenTrons
+FROM vimagick/alpine-arm:3.3
+#COPY qemu-arm-static /usr/bin/qemu-arm-static
 
-# Update the system
-RUN apt-get update -qq
+ENV APP_HOME /home/sandbox-frontend
 
-# Install Python.
-RUN apt-get install -y python-pip
+RUN apk update && \
+    apk add \
+    ca-certificates \
+    python3 \
+    wget
 
-ENV APP_HOME /var/www
-ENV PORT 5000
-ENV WEB_ENV production
+RUN apk del wget ca-certificates && rm -rf /var/cache/apk/*
 
-# Create a working directory for our app
-RUN echo Creating app directory in $APP_HOME
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
+RUN apk update && apk add \
+    build-base \ 
+    ca-certificates \
+    libffi-dev \ 
+    python3 \
+    python3-dev \
+    wget \ 
+    && wget "https://bootstrap.pypa.io/get-pip.py" -O /dev/stdout | python3
 
-# Add just the library requirements and install them.  This step is cached
-# unless the requirements have changed.
-ADD requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /home/sandbox-frontend
 
-# Take the files from our Git repo and add them to $APP_HOME
-# Never edit these files from within containers; make another build.
+COPY requirements.txt requirements.txt
+
+RUN pip3 install -r requirements.txt
+
+RUN rm -rf /var/cache/apk/*
+
 ADD . $APP_HOME
 
-EXPOSE $PORT
-
-ENTRYPOINT python $APP_HOME/app.py
+#ENTRYPOINT ["tar", "-cvz", "/usr/lib/python3.5/site-packages/", "/home/sandbox-frontend"]
+ENTRYPOINT ["python3", "/home/sandbox-frontend/app.py"]
